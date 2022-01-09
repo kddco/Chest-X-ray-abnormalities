@@ -1,5 +1,18 @@
 import pandas as pd
+from tqdm import tqdm
 import numpy as np
+
+from sklearn.model_selection import KFold
+
+import load_csv
+
+train = load_csv.get_train()
+class_names = sorted(train.class_name.unique())
+del class_names[class_names.index('No finding')]
+class_names = class_names+['No finding']
+classes = dict(zip(list(range(15)),class_names))
+
+
 
 def prepareDataFrame(train_df=train):
     train_df = train_df.fillna(0)
@@ -31,5 +44,20 @@ def prepareDataFrame(train_df=train):
 
     return return_df
 
+def generateFolds(train_df,n_splits = None):
+    kf = KFold(n_splits= n_splits)
+    for id,(tr_,val_) in enumerate(kf.split(train_df["image_id"],train_df["label"])):
+        train_df.loc[val_,'kfold'] = int(id)
+    train_df["kfold"].astype(int)
+
+
+def get_train_df():
+    return train_df
 
 train_df = prepareDataFrame()
+
+my_cols = ['image_id',    'label']
+train_df = train_df[my_cols]
+
+generateFolds(train_df, n_splits=5)
+
