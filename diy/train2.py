@@ -46,7 +46,7 @@ for fold in range(3):
     print('X_val.head()=', X_val.head())
 
     print('-----------\n')
-    dl = DataLoader('D:/machinelearning_xay_chest/download_from_kaggle/train/',X_train,X_val)
+    dl = DataLoader('D:/machinelearning_xay_chest/download_from_kaggle_npy/train/',X_train,X_val)
     train_set = dl.flow(batch_size=32)
 
     X_eval, Y_eval = dl.getVal()
