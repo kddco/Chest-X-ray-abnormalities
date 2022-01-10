@@ -1,38 +1,35 @@
-from keras.models import load_model
+import keras
+from keras.layers import Input, Dense, Dropout, Flatten, Conv2D, MaxPool2D, BatchNormalization, Activation, concatenate
+from keras.layers import Activation, Dropout, Flatten, Dense, Conv2D, MaxPooling2D
+
 import tensorflow.keras.backend as K
 import tensorflow as tf
 import pre_process
 from diy.Loader import DataLoader
-
+from keras import models
+from keras import layers
 def build_v2():
-    in1 = tf.keras.layers.Input(shape=(256, 256, 1))
+    model2=models.Sequential()
+    model2.add(layers.Dense(128,activation='relu',input_shape=(256,256,1)))
+    model2.add(MaxPooling2D(pool_size=(2, 2)))
+    model2.add(Conv2D(filters=32, kernel_size=(3, 3), padding='Same'))
+    model2.add(Dense(32))
+    model2.add(MaxPooling2D(pool_size=(2, 2)))
+    model2.add(Conv2D(filters=32, kernel_size=(3, 3), padding='Same'))
 
-    out1 = tf.keras.layers.Conv2D(64, (3, 3),
-                                  activation="relu")(in1)
+    model2.add(MaxPool2D(pool_size=(2, 2)))
+    model2.add(Activation('sigmoid'))
 
-    out1 = tf.keras.layers.MaxPooling2D((2, 2))(out1)
 
-    out1 = tf.keras.layers.Conv2D(64, (3, 3),
-                                  activation="relu")(out1)
-
-    out1 = tf.keras.layers.MaxPooling2D((2, 2))(out1)
-
-    out1 = tf.keras.layers.Flatten()(out1)
-
-    out2 = tf.keras.layers.Dense(128, activation="relu")(out1)
-
-    out2 = tf.keras.layers.Dense(15,
-                                 activation="sigmoid")(out2)
-
-    model2 = tf.keras.Model(inputs=in1, outputs=out2)
 
     return model2
 
 
 model2 = build_v2()
-model2.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-model2.summary()
-model2.save('my_model2.h5')  # creates a HDF5 file 'model.h5'
+model2.compile(loss='mean_squared_error',
+                  optimizer='rmsprop',
+                  metrics=['accuracy'])
+
 for fold in range(3):
     print(f'\nFold: {fold}\n')
 
@@ -66,12 +63,7 @@ for fold in range(3):
     #     model = build_v1()
 
     print('-----------\n')
-    model2.fit(train_set,
-               epochs=10,
-               steps_per_epoch=int(15000 / 32),
-               validation_data=(X_eval, Y_eval),
-               callbacks=[chckpt]
-               )
-
-    break
+    model2.fit(X_eval, Y_eval,epochs=10,batch_size=512,validation_data=(X_eval,Y_eval))
+model2.summary()
+model2.save('my_model2.h5')  # creates a HDF5 file 'model.h5'
 
