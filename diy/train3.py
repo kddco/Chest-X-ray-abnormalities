@@ -43,4 +43,4 @@ for fold in range(3):
 
 # save model
 model.summary()
-model.save("train3.h5")
+# model.save("train3.h5")
